@@ -127,10 +127,3 @@ Then enable each channel in the **Channels** tab of the dashboard.
 
 ---
 
-## Next Steps (Phase 2)
-
-- [ ] Dockerize: 3 containers (db / backend / frontend)
-- [ ] Write `docker-compose.yml`
-- [ ] Jenkins pipeline → deploy to Ubuntu VM on Proxmox
-- [ ] Nginx reverse proxy for frontend + API
-- [ ] HTTPS via Let's Encrypt (or self-signed for internal network)
