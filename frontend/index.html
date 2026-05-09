@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REMINDR — Weekly Dispatch System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── HEADER ─────────────────────────────────────────────── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-block">
+        <span class="logo-tag">[ SYS ]</span>
+        <h1 class="logo-title">REMINDR</h1>
+        <span class="logo-sub">WEEKLY DISPATCH SYSTEM</span>
+      </div>
+      <div class="header-meta">
+        <div class="status-pill" id="status-pill">
+          <span class="status-dot"></span>
+          <span id="status-text">CONNECTING</span>
+        </div>
+        <div class="header-clock" id="header-clock">--:--:--</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── NAV TABS ───────────────────────────────────────────── -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="dashboard">DASHBOARD</button>
+    <button class="tab-btn" data-tab="reminders">REMINDER BANK</button>
+    <button class="tab-btn" data-tab="channels">CHANNELS</button>
+    <button class="tab-btn" data-tab="history">SEND LOG</button>
+  </nav>
+
+  <!-- ── MAIN ────────────────────────────────────────────────── -->
+  <main class="main-content">
+
+    <!-- ═══ TAB: DASHBOARD ═══════════════════════════════════ -->
+    <section id="tab-dashboard" class="tab-pane active">
+
+      <!-- Stat bar -->
+      <div class="stat-bar">
+        <div class="stat-card">
+          <div class="stat-label">TOTAL REMINDERS</div>
+          <div class="stat-value" id="stat-total">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">ACTIVE</div>
+          <div class="stat-value" id="stat-active">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">CATEGORIES</div>
+          <div class="stat-value" id="stat-cats">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">DISPATCHES (30d)</div>
+          <div class="stat-value" id="stat-sent">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">NEXT DISPATCH</div>
+          <div class="stat-value" id="stat-next">MON 08:00</div>
+        </div>
+      </div>
+
+      <!-- Random reminder card -->
+      <div class="section-header">
+        <h2 class="section-title">// CURRENT DISPATCH</h2>
+        <button class="btn-ghost" id="btn-randomize">↻ RANDOMIZE</button>
+      </div>
+
+      <div class="dispatch-card" id="dispatch-card">
+        <div class="dispatch-loading">
+          <span class="mono-blink">█</span> Pulling from database...
+        </div>
+      </div>
+
+      <div class="dispatch-actions" id="dispatch-actions" style="display:none">
+        <button class="btn-primary" id="btn-send-now">▶ DISPATCH NOW</button>
+        <div class="send-results" id="send-results"></div>
+      </div>
+
+    </section>
+
+    <!-- ═══ TAB: REMINDER BANK ════════════════════════════════ -->
+    <section id="tab-reminders" class="tab-pane">
+
+      <div class="section-header">
+        <h2 class="section-title">// REMINDER BANK</h2>
+        <div class="filter-row">
+          <select id="filter-cat" class="mono-select">
+            <option value="">ALL CATEGORIES</option>
+          </select>
+          <label class="toggle-label">
+            <input type="checkbox" id="filter-active" checked />
+            ACTIVE ONLY
+          </label>
+          <button class="btn-ghost" id="btn-add-reminder">+ ADD</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table" id="reminders-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>TITLE</th>
+              <th>CATEGORY</th>
+              <th>PRIORITY</th>
+              <th>SENT</th>
+              <th>STATUS</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody id="reminders-tbody">
+            <tr><td colspan="7" class="table-loading">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Add/Edit form (hidden) -->
+      <div id="reminder-form-wrap" class="form-overlay hidden">
+        <div class="form-panel">
+          <div class="form-header">
+            <span id="form-title">ADD REMINDER</span>
+            <button class="btn-close" id="btn-close-form">✕</button>
+          </div>
+          <div class="form-body">
+            <input type="hidden" id="form-reminder-id" />
+            <label class="field-label">TITLE
+              <input type="text" id="field-title" class="mono-input" placeholder="Concise imperative title" />
+            </label>
+            <label class="field-label">BODY
+              <textarea id="field-body" class="mono-input mono-textarea" placeholder="The full reminder text..."></textarea>
+            </label>
+            <div class="form-row">
+              <label class="field-label half">CATEGORY
+                <select id="field-cat" class="mono-select"></select>
+              </label>
+              <label class="field-label half">PRIORITY
+                <select id="field-priority" class="mono-select">
+                  <option value="1">1 — LOW</option>
+                  <option value="2" selected>2 — MEDIUM</option>
+                  <option value="3">3 — HIGH</option>
+                </select>
+              </label>
+            </div>
+            <label class="field-label">AUTHOR (optional)
+              <input type="text" id="field-author" class="mono-input" placeholder="e.g. Marcus Aurelius" />
+            </label>
+            <label class="field-label">TAGS (comma separated)
+              <input type="text" id="field-tags" class="mono-input" placeholder="stoicism, mindset, focus" />
+            </label>
+            <div class="form-footer">
+              <button class="btn-ghost" id="btn-cancel-form">CANCEL</button>
+              <button class="btn-primary" id="btn-save-reminder">SAVE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══ TAB: CHANNELS ═════════════════════════════════════ -->
+    <section id="tab-channels" class="tab-pane">
+
+      <div class="section-header">
+        <h2 class="section-title">// NOTIFICATION CHANNELS</h2>
+      </div>
+
+      <div class="channels-grid" id="channels-grid">
+        <div class="table-loading">Loading channel config...</div>
+      </div>
+
+    </section>
+
+    <!-- ═══ TAB: SEND LOG ════════════════════════════════════ -->
+    <section id="tab-history" class="tab-pane">
+
+      <div class="section-header">
+        <h2 class="section-title">// SEND LOG</h2>
+        <button class="btn-ghost" id="btn-refresh-history">↻ REFRESH</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>TIMESTAMP</th>
+              <th>REMINDER</th>
+              <th>CHANNEL</th>
+              <th>STATUS</th>
+              <th>DETAIL</th>
+            </tr>
+          </thead>
+          <tbody id="history-tbody">
+            <tr><td colspan="5" class="table-loading">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ── TOAST ───────────────────────────────────────────────── -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
